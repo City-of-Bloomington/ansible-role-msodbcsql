@@ -1,0 +1,25 @@
+---
+- name: 'Add Microsoft GPG key'
+  ansible.builtin.get_url:
+    url:  'https://packages.microsoft.com/keys/microsoft.asc'
+    dest: '/etc/apt/keyrings/microsoft.asc'
+    mode: '0644'
+
+- name: 'Add Microsoft apt repository'
+  ansible.builtin.apt_repository:
+    filename: 'mssql-release.list'
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/{{ ansible_distribution_version }}/prod {{ ansible_distribution_release }} main"
+    state: 'present'
+    update_cache: 'yes'
+
+- name: "Install MS Sql Server Driver"
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+    state: "present"
+  vars:
+    packages:
+      - "msodbcsql18"
+      - "unixodbc-dev"
+  environment:
+    ACCEPT_EULA: 'Y'
+...
